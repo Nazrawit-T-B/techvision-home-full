@@ -1,639 +1,152 @@
 'use client'
 
-import { motion, useInView } from 'framer-motion'
-import Link from 'next/link'
-import { useRef,useState } from 'react'
+import { useState } from 'react'
 
-type Instructor = {
-  instructor?: string
-  full_name?: string
+const INITIAL_COUNT = 3
+
+interface Instructor {
+  instructor: string
+  full_name: string
 }
 
-type Batch = {
+interface Course {
   name: string
-  start_date: string
-  end_date?: string | null
-  description?: string | null
+  title: string
+  url: string
+  description: string | null
+  image: string | null
+  instructors: Instructor[]
 }
 
-type Course = {
-  name: string
-  description?: string | null
-  image?: string | null
-  instructors?: Instructor[]
-  upcomingBatches?: Batch[]
+const NAMED_ENTITIES: Record<string, string> = {
+  nbsp: ' ',
+  amp: '&',
+  lt: '<',
+  gt: '>',
+  quot: '"',
+  apos: "'",
+  rsquo: '\u2019',
+  lsquo: '\u2018',
+  rdquo: '\u201D',
+  ldquo: '\u201C',
+  ndash: '\u2013',
+  mdash: '\u2014',
+  hellip: '\u2026',
 }
 
-function formatBatchDate(date: string): string {
-  return new Intl.DateTimeFormat('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-    timeZone: 'UTC',
-  }).format(new Date(`${date}T00:00:00Z`))
+function stripHtml(html: string | null): string {
+  if (!html) return ''
+
+  return html
+    .replace(/<\/(p|li|div|h[1-6]|ul|ol)>/gi, ' ')
+    .replace(/<br\s*\/?>/gi, ' ')
+    .replace(/<[^>]*>/g, '')
+    .replace(/&#(\d+);/g, (_, code) => String.fromCharCode(Number(code)))
+    .replace(/&#x([0-9a-f]+);/gi, (_, code) =>
+      String.fromCharCode(parseInt(code, 16))
+    )
+    .replace(/&([a-z]+);/gi, (match, name) => NAMED_ENTITIES[name.toLowerCase()] ?? match)
+    .replace(/\s+/g, ' ')
+    .trim()
 }
 
-function getInstructorLabel(instructor: Instructor): string {
-  return (
-    instructor.full_name ||
-    instructor.instructor ||
-    'Unknown instructor'
-  )
-}
+export function TechStackClient({ courses }: { courses: Course[] }) {
+  const [showAll, setShowAll] = useState(false)
 
-export function TechStackClient({
-  courses,
-}: {
-  courses: Course[]
-}) {
-  const ref = useRef<HTMLElement>(null)
-
-  const [expandedCourse, setExpandedCourse] = useState<string | null>(
-    null
-  )
-
-  const isInView = useInView(ref, {
-    once: true,
-    margin: '-100px',
-  })
+  const visible = showAll ? courses : courses.slice(0, INITIAL_COUNT)
 
   return (
-    <section
-      ref={ref}
-      className="
-        relative
-        overflow-visible
-        bg-[#ffffff]
-        px-5
-        py-20
-        text-[#111916]
-        transition-colors
-        duration-300
+    <section className="mx-auto w-full max-w-6xl px-4 sm:px-6">
+      <header className="mb-14 text-center">
+        <div className="flex items-center justify-center gap-4">
+          <span className="h-px w-10 bg-slate-400 sm:w-14" />
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#00d68f]">
+            Start Learning
+          </p>
+          <span className="h-px w-10 bg-slate-400 sm:w-14" />
+        </div>
 
-        dark:bg-[#0f1713]
-        dark:text-[#f2f7f4]
+        <h2 className="mt-6 text-4xl font-extrabold tracking-tight text-[#0a0f0d] sm:text-5xl lg:text-6xl">
+          Available <span className="text-[#00d68f]">Courses</span>
+        </h2>
 
-        sm:px-8
-        lg:py-24
-      "
-    >
-      <div className="relative z-10 mx-auto max-w-6xl">
+        <p className="mx-auto mt-5 max-w-2xl text-lg text-slate-500">
+          Explore our featured courses and pick the one that fits where you are
+          in your journey. Click any course to see the full details.
+        </p>
+      </header>
 
-        {/* HEADER */}
-        <motion.div
-          initial={{
-            opacity: 0,
-            y: 30,
-          }}
-          animate={
-            isInView
-              ? {
-                  opacity: 1,
-                  y: 0,
-                }
-              : {}
-          }
-          transition={{
-            duration: 0.7,
-            ease: [0.22, 1, 0.36, 1],
-          }}
-          className="mb-12 text-center"
-        >
-          <div
-            className="
-              mb-4
-              inline-flex
-              items-center
-              gap-3
-              text-xs
-              font-bold
-              uppercase
-              tracking-[0.18em]
-              text-[#00d38d]
-            "
-          >
-            <span
-              className="
-                h-px
-                w-9
-                bg-[#9aa99f]
-                dark:bg-[#52625a]
-              "
-            />
+      {courses.length === 0 ? (
+        <p className="py-12 text-center text-slate-500">
+          No featured courses yet.
+        </p>
+      ) : (
+        <>
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {visible.map((course) => {
+              const instructor = course.instructors[0]
+              const initial = instructor?.full_name?.charAt(0).toUpperCase()
+              const description = stripHtml(course.description)
 
-            Our Courses
-
-            <span
-              className="
-                h-px
-                w-9
-                bg-[#9aa99f]
-                dark:bg-[#52625a]
-              "
-            />
-          </div>
-
-          <h2
-            className="
-              tv-course-title
-              text-4xl
-              font-black
-              leading-tight
-              sm:text-5xl
-              lg:text-6xl
-            "
-          >
-            Learn the Skills{' '}
-            <span className="text-[#00d38d]">
-              Companies Need
-            </span>
-          </h2>
-        </motion.div>
-
-        {/* COURSES */}
-        <div className="mx-auto flex max-w-5xl flex-col gap-4">
-
-          {courses.length === 0 && (
-            <p
-              className="
-                w-full
-                text-center
-                text-sm
-                text-[#4a5a52]
-                dark:text-[#aab7b0]
-              "
-            >
-              No published courses found.
-            </p>
-          )}
-
-          {courses.map((course, index) => {
-            const isExpanded =
-              expandedCourse === course.name
-
-            return (
-              <motion.article
-                key={course.name}
-                initial={{
-                  opacity: 0,
-                  y: 25,
-                }}
-                animate={
-                  isInView
-                    ? {
-                        opacity: 1,
-                        y: 0,
-                      }
-                    : {}
-                }
-                transition={{
-                  delay: 0.1 + index * 0.06,
-                  duration: 0.5,
-                  ease: [0.22, 1, 0.36, 1],
-                }}
-                className={`
-                  overflow-hidden
-                  border
-                  border-[#dce5df]
-                  bg-[#ffffff]
-                  text-left
-                  transition-all
-                  duration-300
-
-                  dark:border-[#a1b1a7]
-                  dark:bg-[#17211c00]
-
-                  ${
-                    isExpanded
-                      ? `
-                        shadow-[5px_8px_0_#a6b2ab]
-                        dark:shadow-[5px_8px_0_#080d0a]
-                      `
-                      : `
-                        hover:-translate-y-1
-                        hover:shadow-[4px_6px_0_#a6b2ab]
-                        dark:hover:shadow-[4px_6px_0_#080d0a]
-                      `
-                  }
-                `}
-              >
-                <button
-                  type="button"
-                  onClick={() =>
-                    setExpandedCourse(
-                      isExpanded ? null : course.name
-                    )
-                  }
-                  aria-expanded={isExpanded}
-                  className="
-                    group
-                    flex
-                    w-full
-                    flex-col
-                    text-left
-                    md:flex-row
-                  "
+              return (
+                <a
+                  key={course.name}
+                  href={course.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-[#00d68f]"
                 >
-
-                  {course.image ? (
-                    <div
-                      className="
-                        relative
-                        h-44
-                        w-full
-                        shrink-0
-                        overflow-hidden
-                        md:h-auto
-                        md:min-h-[150px]
-                        md:w-52
-                        lg:w-60
-                      "
-                    >
+                  <div className="aspect-video w-full overflow-hidden bg-slate-200">
+                    {course.image && (
                       <img
                         src={course.image}
-                        alt={course.name}
-                        className="
-                          h-full
-                          w-full
-                          object-cover
-                          transition-transform
-                          duration-500
-                          group-hover:scale-105
-                        "
+                        alt={course.title}
+                        className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
                       />
-                    </div>
-                  ) : (
-                    <div
-                      className="
-                        flex
-                        h-44
-                        w-full
-                        shrink-0
-                        items-center
-                        justify-center
-                        bg-[#0b2b1d]
-                        dark:bg-[#28543c]
-
-                        md:h-auto
-                        md:min-h-[150px]
-                        md:w-52
-                        lg:w-60
-                      "
-                    >
-                      <span
-                        className="
-                          text-sm
-                          font-bold
-                          text-[#00d38d]
-                        "
-                      >
-                        TechVision
-                      </span>
-                    </div>
-                  )}
-
-                  <div
-                    className="
-                      flex
-                      min-w-0
-                      flex-1
-                      items-center
-                      gap-6
-                      p-5
-                      sm:p-6
-                    "
-                  >
-                    <div className="min-w-0 flex-1">
-
-                      <p
-                        className="
-                          tv-mono
-                          text-[10px]
-                          font-bold
-                          uppercase
-                          tracking-[0.18em]
-                          text-[#00d38d]
-                        "
-                      >
-                        Course
-                      </p>
-
-                      <h3
-                        className="
-                          mt-1
-                          text-xl
-                          font-bold
-                          leading-tight
-                          text-[#111916]
-
-                          dark:text-[#f2f7f4]
-
-                          sm:text-2xl
-                        "
-                      >
-                        {course.name}
-                      </h3>
-
-                      {course.instructors &&
-                        course.instructors.length > 0 && (
-                          <p
-                            className="
-                              tv-mono
-                              mt-1
-                              text-[10px]
-                              font-semibold
-                              uppercase
-                              tracking-[0.12em]
-                              text-[#00a66f]
-                              dark:text-[#62d99b]
-                            "
-                          >
-                            {course.instructors
-                              .map(getInstructorLabel)
-                              .join(', ')}
-                          </p>
-                        )}
-
-                      {!isExpanded &&
-                        course.description && (
-                          <div
-                            className="
-                              mt-3
-                              line-clamp-2
-                              max-w-3xl
-                              text-sm
-                              leading-6
-                              text-[#333c37]
-
-                              dark:text-[#b5c1ba]
-
-                              [&_p]:m-0
-
-                              [&_strong]:text-[#111916]
-                              dark:[&_strong]:text-[#f2f7f4]
-                            "
-                            dangerouslySetInnerHTML={{
-                              __html:
-                                course.description,
-                            }}
-                          />
-                        )}
-                    </div>
-
-                 
-                    <div className="flex shrink-0 items-center gap-6">
-                      <Link
-                        href={`http://learn.techvision.edu.et/lms/courses/${course.name}`}
-                        className="
-                          flex
-                          h-10
-                          items-center
-                          justify-center
-                          border
-                          border-[#dce5df]
-                          px-4
-                          text-xs
-                          font-bold
-                          uppercase
-                          tracking-[0.12em]
-                          text-[#00d38d]
-                          transition-all
-                          duration-300
-                          hover:border-[#00d38d]
-
-                          dark:border-[#35443b]
-                          dark:bg-[#1d2922]
-                        "
-                      >
-                        Learn
-                      </Link>
-
-                      <span
-                        className={`
-                          flex
-                          h-10
-                          w-10
-                          shrink-0
-                          items-center
-                          justify-center
-                          rounded-full
-                          border
-                          border-[#dce5df]
-                          text-xl
-                          font-light
-                          text-[#00d38d]
-                          transition-all
-                          duration-300
-
-                          dark:border-[#35443b]
-                          dark:bg-[#1d2922]
-
-                          ${
-                            isExpanded
-                              ? 'rotate-45'
-                              : 'group-hover:border-[#00d38d]'
-                          }
-                        `}
-                        aria-hidden="true"
-                      >
-                        +
-                      </span>
-                    </div>
+                    )}
                   </div>
-                </button>
 
-                <div
-                  className={`
-                    grid
-                    transition-[grid-template-rows]
-                    duration-500
-                    ease-out
+                  <div className="flex flex-1 flex-col p-5">
+                    <h3 className="text-xl font-semibold text-[#0a0f0d] transition group-hover:text-[#00b578]">
+                      {course.title}
+                    </h3>
 
-                    ${
-                      isExpanded
-                        ? 'grid-rows-[1fr]'
-                        : 'grid-rows-[0fr]'
-                    }
-                  `}
-                >
-                  <div className="overflow-hidden">
+                    <p className="mt-2 line-clamp-2 min-h-[3rem] text-slate-600">
+                      {description}
+                    </p>
 
-                    <div
-                      className="
-                        border-t
-                        border-[#dce5df]
-                        px-5
-                        pb-6
-                        pt-5
-
-                        dark:border-[#35443b]
-
-                        sm:px-6
-                      "
-                    >
-
-                      {/* DESCRIPTION */}
-                      {course.description && (
-                        <div
-                          className="
-                            max-w-4xl
-                            text-sm
-                            leading-7
-                            text-[#333c37]
-
-                            dark:text-[#b5c1ba]
-
-                            [&_h1]:mb-3
-                            [&_h1]:mt-5
-                            [&_h1]:text-lg
-                            [&_h1]:font-bold
-                            [&_h1]:text-[#111916]
-                            dark:[&_h1]:text-[#f2f7f4]
-
-                            [&_h2]:mb-3
-                            [&_h2]:mt-5
-                            [&_h2]:text-base
-                            [&_h2]:font-bold
-                            [&_h2]:text-[#111916]
-                            dark:[&_h2]:text-[#f2f7f4]
-
-                            [&_h3]:mb-2
-                            [&_h3]:mt-4
-                            [&_h3]:font-bold
-                            [&_h3]:text-[#111916]
-                            dark:[&_h3]:text-[#f2f7f4]
-
-                            [&_p]:mb-3
-
-                            [&_strong]:font-semibold
-                            [&_strong]:text-[#111916]
-                            dark:[&_strong]:text-[#f2f7f4]
-
-                            [&_ul]:ml-5
-                            [&_ul]:list-disc
-
-                            [&_ol]:ml-5
-                            [&_ol]:list-decimal
-
-                            [&_li]:mb-2
-                          "
-                          dangerouslySetInnerHTML={{
-                            __html:
-                              course.description,
-                          }}
-                        />
+                    <div className="mt-auto flex items-center gap-3 pt-6">
+                      {instructor ? (
+                        <>
+                          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-orange-600 text-sm font-semibold text-white">
+                            {initial}
+                          </span>
+                          <span className="truncate text-sm text-slate-700">
+                            {instructor.full_name}
+                          </span>
+                        </>
+                      ) : (
+                        <span className="h-9" />
                       )}
-
-                      {/* UPCOMING BATCHES */}
-                      {course.upcomingBatches &&
-                        course.upcomingBatches.length > 0 && (
-                          <div
-                            className="
-                              mt-6
-                              border-t
-                              border-[#dce5df]
-                              pt-5
-
-                              dark:border-[#35443b]
-                            "
-                          >
-                            <p
-                              className="
-                                tv-mono
-                                text-[10px]
-                                font-bold
-                                uppercase
-                                tracking-[0.18em]
-                                text-[#00d38d]
-                              "
-                            >
-                              Upcoming batches
-                            </p>
-
-                            <div
-                              className="
-                                mt-3
-                                grid
-                                gap-3
-                                sm:grid-cols-2
-                              "
-                            >
-                              {course.upcomingBatches.map(
-                                (batch) => (
-                                  <div
-                                    key={`${batch.name}-${batch.start_date}`}
-                                    className="
-                                      rounded-lg
-                                      border
-                                      border-[#dce5df]
-                                      bg-[#f7faf8]
-                                      p-3
-
-                                      dark:border-[#35443b]
-                                      dark:bg-[#1d2922]
-                                    "
-                                  >
-                                    <p
-                                      className="
-                                        text-sm
-                                        font-semibold
-                                        text-[#111916]
-
-                                        dark:text-[#f2f7f4]
-                                      "
-                                    >
-                                      {batch.name}
-                                    </p>
-
-                                    <p
-                                      className="
-                                        tv-mono
-                                        mt-1
-                                        text-[10px]
-                                        text-[#68736d]
-
-                                        dark:text-[#9eaaa3]
-                                      "
-                                    >
-                                      {formatBatchDate(
-                                        batch.start_date
-                                      )}
-
-                                      {batch.end_date
-                                        ? ` – ${formatBatchDate(
-                                            batch.end_date
-                                          )}`
-                                        : ''}
-                                    </p>
-
-                                    {batch.description && (
-                                      <p
-                                        className="
-                                          mt-2
-                                          text-xs
-                                          leading-5
-                                          text-[#59665e]
-
-                                          dark:text-[#87968e]
-                                        "
-                                      >
-                                        {batch.description}
-                                      </p>
-                                    )}
-                                  </div>
-                                )
-                              )}
-                            </div>
-                          </div>
-                        )}
                     </div>
                   </div>
-                </div>
-              </motion.article>
-            )
-          })}
-        </div>
-      </div>
+                </a>
+              )
+            })}
+          </div>
+
+          {courses.length > INITIAL_COUNT && (
+            <div className="mt-10 text-center">
+              <button
+                onClick={() => setShowAll((prev) => !prev)}
+                className="rounded-lg border border-slate-300 px-8 py-2.5 font-medium text-slate-800 transition hover:border-[#00d68f] hover:text-[#00b578]"
+              >
+                {showAll ? 'Show less' : 'More'}
+              </button>
+            </div>
+          )}
+        </>
+      )}
     </section>
   )
 }

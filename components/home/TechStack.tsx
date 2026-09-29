@@ -1,18 +1,23 @@
-// TechStack.tsx (Server Component — no 'use client')
 import { TechStackClient } from './TechStackClient'
 
 const BASE_URL = 'https://learn.techvision.edu.et'
+const COURSE_PATH = '/lms/courses' // change if your LMS uses a different route
+
+const authHeaders = {
+  Authorization: `token ${process.env.FRAPPE_API_KEY}:${process.env.FRAPPE_API_SECRET}`,
+}
 
 async function getCourseNames(): Promise<string[]> {
   const courseParams = new URLSearchParams({
-    filters: JSON.stringify([['published', '=', 1],]),
+    filters: JSON.stringify([
+      ['published', '=', 1],
+      ['featured', '=', 1],
+    ]),
     fields: JSON.stringify(['name']),
   })
 
   const res = await fetch(`${BASE_URL}/api/resource/LMS%20Course?${courseParams}`, {
-    headers: {
-      Authorization: `token ${process.env.FRAPPE_API_KEY}:${process.env.FRAPPE_API_SECRET}`,
-    },
+    headers: authHeaders,
     next: { revalidate: 60 },
   })
 
@@ -29,9 +34,7 @@ async function getCourseDetail(name: string): Promise<any | null> {
   const res = await fetch(
     `${BASE_URL}/api/resource/LMS%20Course/${encodeURIComponent(name)}`,
     {
-      headers: {
-        Authorization: `token ${process.env.FRAPPE_API_KEY}:${process.env.FRAPPE_API_SECRET}`,
-      },
+      headers: authHeaders,
       next: { revalidate: 60 },
     }
   )
@@ -50,9 +53,7 @@ async function getUserFullName(email: string): Promise<string> {
   const res = await fetch(
     `${BASE_URL}/api/resource/User/${encodeURIComponent(email)}?fields=${fieldsParam}`,
     {
-      headers: {
-        Authorization: `token ${process.env.FRAPPE_API_KEY}:${process.env.FRAPPE_API_SECRET}`,
-      },
+      headers: authHeaders,
       next: { revalidate: 300 },
     }
   )
@@ -71,7 +72,6 @@ async function getCourses() {
   const courses = await Promise.all(names.map((name) => getCourseDetail(name)))
   const validCourses = courses.filter(Boolean)
 
-  // Collect all unique instructor emails across all courses
   const allEmails = new Set<string>()
   validCourses.forEach((course: any) => {
     ;(course.instructors ?? []).forEach((i: any) => {
@@ -79,7 +79,6 @@ async function getCourses() {
     })
   })
 
-  // Resolve each unique email to a full name once (deduped, parallel)
   const nameMap = new Map<string, string>()
   await Promise.all(
     Array.from(allEmails).map(async (email) => {
@@ -87,9 +86,10 @@ async function getCourses() {
     })
   )
 
-  // Also resolve image paths to full URLs while we're at it
   return validCourses.map((course: any) => ({
     name: course.name,
+    title: course.title ?? course.name,
+    url: `${BASE_URL}${COURSE_PATH}/${encodeURIComponent(course.name)}`,
     description: course.description ?? null,
     image: course.image
       ? course.image.startsWith('http')

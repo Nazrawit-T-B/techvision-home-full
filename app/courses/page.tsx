@@ -13,7 +13,6 @@ export default function CoursesPage() {
         <Roadmap />
         <TechStack />
         <CoursePageSections />
-        <UpcomingBatches/>
       </main>
       <Footer compact />
     </>
