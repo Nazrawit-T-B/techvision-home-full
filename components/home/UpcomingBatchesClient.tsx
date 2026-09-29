@@ -451,7 +451,7 @@ export function UpcomingBatchesClient({
                 {/* APPLY */}
                 <div className="mt-7 flex flex-wrap gap-3">
                   <Link
-                    href="https://learn.techvision.edu.et/lms/batches"
+                   href={`https://learn.techvision.edu.et/lms/batches/${encodeURIComponent(batch.title)}`}
                     className="
                       flex
                       items-center
@@ -482,6 +482,7 @@ export function UpcomingBatchesClient({
           </div>
         </motion.div>
       </section>
+      {/** x
       <section
         className="
           bg-[#ffffff]
@@ -634,7 +635,7 @@ export function UpcomingBatchesClient({
             <Globe size={48} />
           </div>
         </div>
-      </section>
+        </section>*/}
     </>
   )
 }
