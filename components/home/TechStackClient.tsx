@@ -59,25 +59,25 @@ export function TechStackClient({ courses }: { courses: Course[] }) {
     <section className="mx-auto w-full max-w-6xl px-4 sm:px-6">
       <header className="mb-14 text-center">
         <div className="flex items-center justify-center gap-4">
-          <span className="h-px w-10 bg-slate-400 sm:w-14" />
+          <span className="h-px w-10 bg-slate-400 dark:bg-[#1b2721] sm:w-14" />
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#00d68f]">
             Start Learning
           </p>
-          <span className="h-px w-10 bg-slate-400 sm:w-14" />
+          <span className="h-px w-10 bg-slate-400 dark:bg-[#1b2721] sm:w-14" />
         </div>
 
-        <h2 className="mt-6 text-4xl font-extrabold tracking-tight text-[#0a0f0d] sm:text-5xl lg:text-6xl">
+        <h2 className="mt-6 text-4xl font-extrabold tracking-tight text-[#0a0f0d] dark:text-white sm:text-5xl lg:text-6xl">
           Available <span className="text-[#00d68f]">Courses</span>
         </h2>
 
-        <p className="mx-auto mt-5 max-w-2xl text-lg text-slate-500">
+        <p className="mx-auto mt-5 max-w-2xl text-lg text-slate-500 dark:text-slate-400">
           Explore our featured courses and pick the one that fits where you are
           in your journey. Click any course to see the full details.
         </p>
       </header>
 
       {courses.length === 0 ? (
-        <p className="py-12 text-center text-slate-500">
+        <p className="py-12 text-center text-slate-500 dark:text-slate-400">
           No featured courses yet.
         </p>
       ) : (
@@ -94,9 +94,9 @@ export function TechStackClient({ courses }: { courses: Course[] }) {
                   href={course.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-[#00d68f]"
+                  className="group flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-[#00d68f] dark:border-slate-800 dark:bg-slate-900 dark:shadow-none dark:hover:border-slate-700"
                 >
-                  <div className="aspect-video w-full overflow-hidden bg-slate-200">
+                  <div className="aspect-video w-full overflow-hidden bg-slate-200 dark:bg-slate-800">
                     {course.image && (
                       <img
                         src={course.image}
@@ -107,11 +107,11 @@ export function TechStackClient({ courses }: { courses: Course[] }) {
                   </div>
 
                   <div className="flex flex-1 flex-col p-5">
-                    <h3 className="text-xl font-semibold text-[#0a0f0d] transition group-hover:text-[#00b578]">
+                    <h3 className="text-xl font-semibold text-[#0a0f0d] transition group-hover:text-[#00b578] dark:text-white dark:group-hover:text-[#00d68f]">
                       {course.title}
                     </h3>
 
-                    <p className="mt-2 line-clamp-2 min-h-[3rem] text-slate-600">
+                    <p className="mt-2 line-clamp-2 min-h-[3rem] text-slate-600 dark:text-slate-400">
                       {description}
                     </p>
 
@@ -121,7 +121,7 @@ export function TechStackClient({ courses }: { courses: Course[] }) {
                           <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-orange-600 text-sm font-semibold text-white">
                             {initial}
                           </span>
-                          <span className="truncate text-sm text-slate-700">
+                          <span className="truncate text-sm text-slate-700 dark:text-slate-300">
                             {instructor.full_name}
                           </span>
                         </>
@@ -139,7 +139,7 @@ export function TechStackClient({ courses }: { courses: Course[] }) {
             <div className="mt-10 text-center">
               <button
                 onClick={() => setShowAll((prev) => !prev)}
-                className="rounded-lg border border-slate-300 px-8 py-2.5 font-medium text-slate-800 transition hover:border-[#00d68f] hover:text-[#00b578]"
+                className="rounded-lg border border-slate-300 px-8 py-2.5 font-medium text-slate-800 transition hover:border-[#00d68f] hover:text-[#00b578] dark:border-slate-700 dark:text-slate-200 dark:hover:border-[#00d68f] dark:hover:text-[#00d68f]"
               >
                 {showAll ? 'Show less' : 'More'}
               </button>
