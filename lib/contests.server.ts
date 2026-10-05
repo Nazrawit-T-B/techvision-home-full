@@ -1,10 +1,10 @@
 import 'server-only'
-import type { Contest, LeaderboardEntry } from './contests'
+import  { parseFrappeDate,type Contest, type LeaderboardEntry } from './contests'
 
 const LMS_URL = process.env.LMS_URL ?? 'https://learn.techvision.edu.et'
 
 
-const LEADERBOARD_METHOD = 'dsa.api.get_contest_leaderboard?contest={contest_id}'
+const LEADERBOARD_METHOD = 'dsa.api.get_contest_leaderboard'
 const CONTESTS_METHOD = 'dsa.api.get_contests'
 
 async function frappeMethod<T>(
@@ -51,18 +51,15 @@ export async function getLastContest(): Promise<Contest | null> {
 
 // Earliest Active contest that hasn't ended yet
 export async function getNextContest(): Promise<Contest | null> {
-  const now = new Date().toLocaleString('sv-SE', {
-    timeZone: 'Africa/Addis_Ababa',
-  })
+  const rows = await frappeMethod<Contest[]>(CONTESTS_METHOD, {})
+  console.log('[next] fetched', rows?.map((r) => [r.name, r.status, r.end_date]))
 
-  const rows = await frappeMethod<Contest[]>(CONTESTS_METHOD, {
-    ...contestParams('start_date asc'),
-    filters: JSON.stringify([
-      ['status', '=', 'Active'],
-      ['end_date', '>=', now],
-    ]),
-  })
-  return rows?.[0] ?? null
+  const now = Date.now()
+  return (
+    (rows ?? [])
+      .filter((c) => c.status === 'Active' && parseFrappeDate(c.end_date).getTime() >= now)
+      .sort((a, b) => parseFrappeDate(a.start_date).getTime() - parseFrappeDate(b.start_date).getTime())[0] ?? null
+  )
 }
 
 export async function getLeaderboard(
