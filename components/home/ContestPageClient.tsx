@@ -270,7 +270,7 @@ export default function ContestPageClient({
             </div>
 
             {/* NEXT CONTEST (dynamic) */}
-            <div className="flex flex-col border border-[#35443b] bg-[#0f1713] p-7 text-[#f2f7f4]">
+            <div className="flex flex-col border border-[#dce5df] bg-[#ffffff] p-7 text-[#111916] dark:border-[#35443b] dark:bg-[#0f1713] dark:text-[#f2f7f4]">
               <div className="mb-8 flex items-center gap-3 text-xs font-bold uppercase tracking-[0.18em] text-[#00d38d]">
                 <span>/</span>
                 {ended ? 'Latest Contest' : live ? 'Live Now' : 'Next Contest'}
@@ -312,14 +312,14 @@ export default function ContestPageClient({
 
                   <a
                     href="http://learn.techvision.edu.et/contest-page"
-                    className="mt-10 flex w-full items-center justify-center gap-3 bg-[#00d38d] px-5 py-3.5 text-sm font-bold text-[#071c12] transition-colors hover:bg-[#00a66f]"
+                    className="mt-10 flex w-full items-center justify-center gap-3 border border-[#00d38d] px-5 py-3.5 text-sm font-bold text-[#00a66f] transition-colors hover:bg-[#00d38d] hover:text-[#071c12] dark:bg-[#00d38d] dark:text-[#071c12] dark:hover:bg-[#00a66f]"
                   >
                     {ended ? 'View Results' : live ? 'Join Now' : 'Register Now'}
                     <ArrowRight className="h-4 w-4" />
                   </a>
                 </>
               ) : (
-                <p className="flex-1 text-sm text-[#b5c1ba]">
+                <p className="flex-1 text-sm text-[#68736d] dark:text-[#b5c1ba]">
                   No upcoming contests right now. Check back soon.
                 </p>
               )}
@@ -385,8 +385,8 @@ export default function ContestPageClient({
               })}
             </div>
 
-            {/* BOTTOM CTA */}
-            <div className="mt-6 flex flex-col gap-6 border border-[#35443b] bg-[#0f1713] p-6 text-[#f2f7f4] sm:flex-row sm:items-center sm:justify-between sm:px-8">
+            {/* CTA BANNER */}
+            <div className="mt-6 flex flex-col gap-6 border border-[#dce5df] bg-[#ffffff] p-6 text-[#111916] dark:border-[#35443b] dark:bg-[#0f1713] dark:text-[#f2f7f4] sm:flex-row sm:items-center sm:justify-between sm:px-8">
               <div className="flex items-center gap-5">
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center border border-[#00d38d] bg-[#28543c]">
                   <Trophy className="h-6 w-6 text-[#00d38d]" />
@@ -395,15 +395,15 @@ export default function ContestPageClient({
                 <div>
                   <h3 className="font-bold">Ready to take on the challenge?</h3>
 
-                  <p className="mt-1 text-xs text-[#b5c1ba]">
+                  <p className="mt-1 text-xs text-[#68736d] dark:text-[#b5c1ba]">
                     Join our next contest and see what you’re capable of.
                   </p>
                 </div>
               </div>
 
               <a
-                href="#upcoming"
-                className="inline-flex shrink-0 items-center justify-center gap-3 border border-[#00d38d] px-5 py-3 text-xs font-bold uppercase tracking-[0.1em] text-[#00d38d] transition-all duration-300 hover:bg-[#00d38d] hover:text-[#071c12]"
+                href="https://learn.techvision.edu.et/contest-page"
+                className="inline-flex shrink-0 items-center justify-center gap-3 border border-[#00d38d] px-5 py-3 text-xs font-bold uppercase tracking-[0.1em] text-[#00a66f] transition-all duration-300 hover:bg-[#00d38d] hover:text-[#071c12] dark:text-[#00d38d]"
               >
                 Browse All Contests
                 <ArrowRight className="h-4 w-4" />
