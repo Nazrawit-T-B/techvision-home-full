@@ -114,7 +114,7 @@ export function Navbar({ hideCourses = false }: { hideCourses?: boolean }) {
               Pricing
             </Link>
             <Link
-              href="/pricing"
+              href="/contest"
               className="tv-nav-link"
               onClick={() => setMobile(false)}
             >
